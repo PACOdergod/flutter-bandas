@@ -34,21 +34,38 @@ class _HomePageState extends State<HomePage> {
 
             floatingActionButton: FloatingActionButton(
                 child: Icon(Icons.add),
-                onPressed: addNewBand,
+                onPressed: _addNewBand,
             ),
         );
     }
 
-    ListTile _bandTile(Band banda) {
-        return ListTile(
-            leading: CircleAvatar(child: Text(banda.name.substring(0, 2))),
-            title: Text( banda.name ),
-            trailing: Text( '${banda.votes}', style: TextStyle( fontSize: 20 ) ),
-            onTap: () => print(banda.name),
+    Widget _bandTile(Band banda) {
+        return Dismissible(
+            key: Key(banda.id),
+            direction: DismissDirection.startToEnd,
+            onDismissed: (DismissDirection diretion){
+                // TODO: hacer el delete en el server
+            },
+
+            background: Container(
+                padding: EdgeInsets.only(left: 10),
+                color: Colors.red, 
+                child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('Delete', style: TextStyle(color: Colors.white),),
+                )
+            ),
+
+            child: ListTile(
+                leading: CircleAvatar(child: Text(banda.name.substring(0, 2))),
+                title: Text( banda.name ),
+                trailing: Text( '${banda.votes}', style: TextStyle( fontSize: 20 ) ),
+                onTap: () => print(banda.name),
+            ),
         );
     } 
 
-    addNewBand() {
+    _addNewBand() {
         final textController = TextEditingController();
 
         if (Platform.isAndroid) showDialog(
@@ -60,7 +77,7 @@ class _HomePageState extends State<HomePage> {
                 actions: [MaterialButton(
                     child: Text('Add'),
                     textColor: Colors.black,
-                    onPressed: ()=>addBandToList(textController.text)
+                    onPressed: ()=> _addBandToList(textController.text)
                 )],
             )
         );
@@ -75,7 +92,7 @@ class _HomePageState extends State<HomePage> {
                     CupertinoDialogAction(
                         isDefaultAction: true,
                         child: Text("Add"),
-                        onPressed: ()=> addBandToList(textController.text),
+                        onPressed: ()=> _addBandToList(textController.text),
                     ),
                     CupertinoDialogAction(
                         isDestructiveAction: true,
@@ -88,8 +105,18 @@ class _HomePageState extends State<HomePage> {
         );
     }
 
-    addBandToList(String name){
+     _addBandToList(String name){
         print(name);
+
+        if (name.length>1) {
+            this.bandas.add(new Band(
+                id: DateTime.now().toString(), 
+                name: name, 
+                votes: 1
+            ));
+
+            setState(() {});
+        }
 
         Navigator.pop(context);
     }
