@@ -11,6 +11,8 @@ class SocketService with ChangeNotifier {
 
   ServerStatus _status = ServerStatus.Connecting;
 
+  get serverStatus => this._status;
+
   SocketService(){
     _initConfig();
   }
@@ -24,11 +26,16 @@ class SocketService with ChangeNotifier {
 
 
     socket.onConnect((_) {
-      print('connect');
+      this._status = ServerStatus.Online;
+      notifyListeners();
     });
 
-    socket.on('event', (data) => print(data));
-    socket.onDisconnect((_) => print('disconnect'));
+    socket.onDisconnect((_) {
+      this._status = ServerStatus.Offline;
+      notifyListeners();
+    });
+
+    socket.on('nuevo-mensaje', (data) => print('nuevo-mensaje: $data'));
   }
   
 }
