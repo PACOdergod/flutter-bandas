@@ -10,8 +10,13 @@ enum ServerStatus{
 class SocketService with ChangeNotifier {
 
   ServerStatus _status = ServerStatus.Connecting;
+  IO.Socket _socket = IO.io('http://192.168.0.127:3000',{
+      'transports': ['websocket'],
+      'autoConnect': true,
+  });
 
-  get serverStatus => this._status;
+  ServerStatus get serverStatus => this._status;
+  IO.Socket get socket => this._socket;
 
   SocketService(){
     _initConfig();
@@ -19,23 +24,21 @@ class SocketService with ChangeNotifier {
 
   _initConfig(){
      // Dart client
-    IO.Socket socket = IO.io('http://192.168.0.127:3000',{
-      'transports': ['websocket'],
-      'autoConnect': true,
-    });
 
-
-    socket.onConnect((_) {
+    this._socket.onConnect((_) {
       this._status = ServerStatus.Online;
       notifyListeners();
     });
 
-    socket.onDisconnect((_) {
+    this._socket.onDisconnect((_) {
       this._status = ServerStatus.Offline;
       notifyListeners();
     });
 
-    socket.on('nuevo-mensaje', (data) => print('nuevo-mensaje: $data'));
+    // this._socket.on('nuevo-mensaje', (data) {
+    //   print('mensaje del servidor:');
+    //   print(data);
+    // });
   }
   
 }
